@@ -1,27 +1,46 @@
 // load express 
 require("dotenv").config()
+console.log (process.env.MONGO_URI)
 const express = require ("express");
-const { redirect } = require("express/lib/response");
-const app = express ();
-const fruits = require ("./models/fruits.js");
-const vegetables = require ("./models/vegetables");
+const mongoose = require ("mongoose");
 
+
+
+const app = express ();
+const Fruit = require ("./models/fruits.js");  //importing fruits from models/fruits.js
+const Vegetable = require ("./models/vegetables.js");
+
+// MVC SETUP 
+//views
 app.set('view engine', 'jsx');
 app.engine('jsx', require('express-react-views').createEngine());
+//models 
+mongoose.connect (process.env.MONGO_URI , { 
+    useNewUrlParser : true ,
+    useUnifiedTopology : true
+})
+
 
 //Middleware 
 app.use (express.urlencoded({extended : true}));
-
-
 app.use ( (req,res,next)=> {
     console.log (req.body) ; 
     next () ;
-
 })
 
-// INDEX week10day3 
+// Fruit ====================>
+
+// INDEX week10day3    //changed on 11dy2 
 app.get ("/fruits" , (req,res) => {
-    res.render ("fruits/Index" , {fruits}) ;  // {fruits}  send data 
+    Fruit.find( {} ,(err,foundFruits) => {
+            if (err)   {
+                res.status(400).send(err)
+            } else {
+                res.render ('fruits/Index' , {
+                    fruits:foundFruits // {fruits}  send data 
+                })
+            }
+    });  
 });
 
 //NEW
@@ -37,7 +56,8 @@ app.get ("/fruits/new" , (req,res) => {
 // UPDATE
 
 
-// CREATE
+// CREATE // updated on w11 d02 
+
 app.post ("/fruits" , (req,res) => {
     if (req.body.readyToEat === "on") {
         req.body.readyToEat = true ;
@@ -45,8 +65,15 @@ app.post ("/fruits" , (req,res) => {
         req.body.readyToEat =false ; 
     }
 
-    fruits.push (req.body) ; 
-    res.redirect ("/fruits") ;
+    Fruit.create(req.body , (err,createdFruit) => {
+        if(err) {
+            res.status (403).send(err)
+        }else {
+            console.log (createdFruit);
+            res.redirect("/fruits");
+        }
+    })
+  
 })
 
 
@@ -56,9 +83,16 @@ app.post ("/fruits" , (req,res) => {
 
 
 // SHOW week10 day3
-app.get ("/fruits/:indexOfFruitsArray" , (req,res) => {
-   res.render ("fruits/Show" , {
-       fruit : fruits[req.params.indexOfFruitsArray] })
+app.get ("/fruits/:id" , (req,res) => {
+  Fruit.findById (req.params.id , (err,foundFruit) => {
+      if (err) {
+          res.status(400).send(err)
+      } else {
+          res.render ('fruits/Show' , {
+              fruit  : foundFruit 
+          })
+      }
+  })
 })
 
   
@@ -67,18 +101,34 @@ app.get ("/fruits/:indexOfFruitsArray" , (req,res) => {
 
 
 
-// vegetables  
-
-console.log (vegetables);
 
 
 
+
+
+
+
+
+
+
+
+// vegetables  ==========================> 
 
 //induces 
 // INDEX 
 
 app.get ("/vegetables" ,(req,res)  => {
-    res.render ("vegetables/Index" , {vegetables} );
+
+    Vegetable.find ({} , (err , foundVegetables) => {
+        if (err) { 
+            res.status(400).send (err) ;
+        } else { 
+          res.render ("vegetables/Index" , {
+              vegetables : foundVegetables 
+          })
+        }
+    })
+    
 })
 
 
@@ -107,8 +157,16 @@ app.post ("/vegetables" , (req,res) => {
         req.body.readyToEat =false ;
     }
 
-    vegetables.push(req.body);
-    res.redirect ("/vegetables");
+   Vegetable.create (req.body , (err,createdVegetable) => {
+       if (err) { 
+           res.status (403).send (err) ;
+
+       }else { 
+        console.log (createdVegetable);
+        res.redirect ("/vegetables");
+       }
+   })
+    
 })
 
 
@@ -118,10 +176,17 @@ app.post ("/vegetables" , (req,res) => {
 
 
 //SHOW 
-app.get ("/vegetables/:indexOfVegetable" , (req,res) => {
-    res.render ("vegetables/Show" , {
-        vegetables : vegetables [req.params.indexOfVegetable] 
-    })
+app.get ("/vegetables/:id" , (req,res) => {
+
+ Vegetable.findById (req.params.id , (err,foundVegetable) => {
+     if (err) { 
+         res.status(400).send(err) ;
+     }else { 
+         res.render("vegetables/Show",{
+            vegetable : foundVegetable
+         })
+     }
+ })
 
 })
 

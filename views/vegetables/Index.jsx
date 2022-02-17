@@ -8,13 +8,13 @@ class Index extends React.Component {
         <div>
             <h1>this is  my beautiful collection of vegetables  </h1>
             <nav>
-                <a href = "/vegetables/new">create new vegetable </a>
+                <a href = "/vegetables/new"> create new vegetable </a>
             </nav>
             <ul>
                 {
-                    vegetables.map ((vegetable , i)   => {
+                    vegetables.map ((vegetable)   => {
                         return (
-                            <li> <a href = {`/vegetables/${i}`} > {vegetable.name} </a> is the color  of {vegetable.color}</li>
+                            <li key ={`${vegetable._id}`} > <a href = {`/vegetables/${vegetable._id}`} > {vegetable.name} </a> is the color  of {vegetable.color}</li>
                         )
 
                     })
