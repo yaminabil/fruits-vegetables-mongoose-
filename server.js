@@ -1,4 +1,5 @@
 // load express 
+require("dotenv").config()
 const express = require ("express");
 const { redirect } = require("express/lib/response");
 const app = express ();
